@@ -1,4 +1,6 @@
 import React from 'react';
+import HomePage from './HomePage';
+import LibraryPage from './LibraryPage';
 import { useNavigate } from 'react-router-dom';
 import bookshelfImg from '../assets/bookshelf.jpg';
 import BookCarousel from '../components/BookCarousel';
