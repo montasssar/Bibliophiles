@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import './SignIn.css'; // external styles
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
@@ -19,11 +20,21 @@ const SignIn = () => {
   };
 
   return (
-    <div style={{ padding: '100px 20px', textAlign: 'center' }}>
-      <h2>Log In</h2>
-      <form onSubmit={handleSubmit}>
-        <input type="email" placeholder="Email" onChange={(e) => setEmail(e.target.value)} required /><br /><br />
-        <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} required /><br /><br />
+    <div className="signin-container">
+      <form className="signin-form" onSubmit={handleSubmit}>
+        <h2>Log In</h2>
+        <input
+          type="email"
+          placeholder="Email"
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
         <button type="submit">Log In</button>
       </form>
     </div>
