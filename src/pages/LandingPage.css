@@ -1,0 +1,65 @@
+/* src/pages/LandingPage.css */
+
+.landing-container {
+    text-align: center;
+    background: #fffaf9;
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+  
+  .bookshelf-wrapper {
+    position: relative;
+  }
+  
+  .bookshelf-image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    max-height: 400px;
+  }
+  
+  .carousel-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding-bottom: 20px;
+  }
+  
+  .landing-welcome {
+    font-size: 28px;
+    margin-top: 30px;
+    font-family: Georgia, serif;
+    color: #5a2a27;
+  }
+  
+  .landing-highlight {
+    color: #B03A2E;
+    font-weight: bold;
+    font-style: italic;
+  }
+  
+  .landing-button {
+    background-color: #C0392B;
+    color: #fff;
+    font-size: 18px;
+    padding: 14px 30px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .landing-footer {
+    margin-top: 60px;
+    font-size: 14px;
+    color: #888;
+  }
+  
+  .landing-link {
+    color: #C0392B;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  
