@@ -2,9 +2,20 @@
 // src/components/Navbar.js
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
+  const { currentUser, logOut } = useAuth();
   const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logOut();
+      navigate('/signin');
+    } catch (error) {
+      alert("Logout failed.");
+    }
+  };
 
   return (
     <nav style={styles.navbar}>
@@ -18,8 +29,20 @@ const Navbar = () => {
         <Link to="/library" style={styles.link}>Library</Link>
       </div>
 
-      <div style={styles.right}>
-        <button style={styles.loginBtn}>Log In</button>
+      <div>
+        {currentUser ? (
+          <div style={styles.accountMenu}>
+            <span>👤</span>
+            <div style={styles.dropdown}>
+              <button onClick={() => navigate('/account')}>Visit Account</button>
+              <button onClick={handleLogout}>Log Out</button>
+            </div>
+          </div>
+        ) : (
+          <Link to="/signin">
+            <button style={styles.loginBtn}>Log In</button>
+          </Link>
+        )}
       </div>
     </nav>
   );
@@ -28,11 +51,10 @@ const Navbar = () => {
 const styles = {
   navbar: {
     display: 'flex',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#B03A2E',
-    color: '#fff',
     padding: '15px 30px',
+    backgroundColor: '#B03A2E',
+    color: '#fff'
   },
   left: {
     cursor: 'pointer',
@@ -50,24 +72,38 @@ const styles = {
   },
   center: {
     display: 'flex',
-    gap: '25px',
+    gap: '20px',
+    alignItems: 'center',
   },
   link: {
     color: '#fff',
     textDecoration: 'none',
-    fontSize: '16px',
     fontWeight: '500',
   },
-  right: {},
   loginBtn: {
     backgroundColor: '#E74C3C',
     border: 'none',
-    color: '#fff',
     padding: '8px 15px',
+    color: '#fff',
     borderRadius: '5px',
     cursor: 'pointer',
     fontWeight: 'bold',
   },
+  accountMenu: {
+    position: 'relative',
+  },
+  dropdown: {
+    position: 'absolute',
+    right: 0,
+    background: '#fff',
+    color: '#000',
+    borderRadius: '5px',
+    boxShadow: '0px 2px 5px rgba(0,0,0,0.2)',
+    padding: '10px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '5px',
+  }
 };
 
 export default Navbar;

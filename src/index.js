@@ -1,8 +1,12 @@
-// src/index.js
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-// import './index.css'; // optional if you create it
+import { AuthProvider } from './context/AuthContext';
+import './index.css'; // Optional global styling
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
+root.render(
+  <AuthProvider>
+    <App />
+  </AuthProvider>
+);
