@@ -6,6 +6,12 @@ const BookCarousel = () => {
   const [startIndex, setStartIndex] = useState(0);
   const [loading, setLoading] = useState(false);
 
+  // Generate a random starting index (between 0 and 100 for example)
+  useEffect(() => {
+    const randomStart = Math.floor(Math.random() * 100); // Adjust range as needed
+    setStartIndex(randomStart);
+  }, []);
+
   const fetchBooks = async () => {
     setLoading(true);
     try {
@@ -22,7 +28,9 @@ const BookCarousel = () => {
   };
 
   useEffect(() => {
-    fetchBooks(); // Fetch initial set
+    if (startIndex >= 0) {
+      fetchBooks();
+    }
   }, [startIndex]);
 
   const handleLoadMore = () => {
