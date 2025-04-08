@@ -5,24 +5,36 @@ import { db } from '../firebase';
 import { doc, setDoc, deleteDoc, getDocs, collection } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
 
+const categories = [
+  'classics',
+  'fiction',
+  'history',
+  'poetry',
+  'romance',
+  'philosophy',
+  'science',
+  'mystery'
+];
+
 const BookCarousel = () => {
   const [books, setBooks] = useState([]);
   const [startIndex, setStartIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [savedBookIds, setSavedBookIds] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('classics');
 
   const { currentUser } = useAuth();
 
   useEffect(() => {
     const randomStart = Math.floor(Math.random() * 100);
     setStartIndex(randomStart);
-  }, []);
+  }, [selectedCategory]);
 
   const fetchBooks = async () => {
     setLoading(true);
     try {
       const response = await fetch(
-        `https://www.googleapis.com/books/v1/volumes?q=classics+arabic+english&startIndex=${startIndex}&maxResults=10`
+        `https://www.googleapis.com/books/v1/volumes?q=${selectedCategory}+arabic+english&startIndex=${startIndex}&maxResults=10`
       );
       const data = await response.json();
       setBooks((prevBooks) => [...prevBooks, ...(data.items || [])]);
@@ -37,7 +49,7 @@ const BookCarousel = () => {
     if (startIndex >= 0) {
       fetchBooks();
     }
-  }, [startIndex]);
+  }, [startIndex, selectedCategory]);
 
   const fetchSavedBooks = async () => {
     if (!currentUser) return;
@@ -74,6 +86,12 @@ const BookCarousel = () => {
 
   const handleLoadMore = () => {
     setStartIndex((prev) => prev + 10);
+  };
+
+  const handleCategoryChange = (e) => {
+    setBooks([]); // Reset books when changing category
+    setStartIndex(0); // Reset start index
+    setSelectedCategory(e.target.value);
   };
 
   return (
@@ -118,8 +136,18 @@ const BookCarousel = () => {
         </div>
       </div>
 
-      {/* Load More Button */}
+      {/* Category Dropdown + Load More */}
       <div className="load-more-wrapper">
+        <select
+          className="category-select"
+          value={selectedCategory}
+          onChange={handleCategoryChange}
+        >
+          {categories.map((cat) => (
+            <option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
+          ))}
+        </select>
+
         <button onClick={handleLoadMore} disabled={loading} className="load-more-btn">
           {loading ? "Loading..." : "Load More"}
         </button>
