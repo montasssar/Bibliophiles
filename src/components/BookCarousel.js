@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import './BookCarousel.css';
-import { FaHeart, FaRegHeart } from 'react-icons/fa';
+import { FaHeart, FaRegHeart, FaBook, FaFeatherAlt, FaLandmark, FaFlask, FaMask, FaTheaterMasks, FaBrain } from 'react-icons/fa';
 import { db } from '../firebase';
 import { doc, setDoc, deleteDoc, getDocs, collection } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
 
 const categories = [
-  'classics',
-  'fiction',
-  'history',
-  'poetry',
-  'romance',
-  'philosophy',
-  'science',
-  'mystery'
+  { value: 'classics', label: 'Classics', icon: <FaBook /> },
+  { value: 'fiction', label: 'Fiction', icon: <FaFeatherAlt /> },
+  { value: 'history', label: 'History', icon: <FaLandmark /> },
+  { value: 'poetry', label: 'Poetry', icon: <FaHeart /> },
+  { value: 'romance', label: 'Romance', icon: <FaTheaterMasks /> },
+  { value: 'philosophy', label: 'Philosophy', icon: <FaBrain /> },
+  { value: 'science', label: 'Science', icon: <FaFlask /> },
+  { value: 'mystery', label: 'Mystery', icon: <FaMask /> }
 ];
 
 const BookCarousel = () => {
@@ -88,10 +88,10 @@ const BookCarousel = () => {
     setStartIndex((prev) => prev + 10);
   };
 
-  const handleCategoryChange = (e) => {
-    setBooks([]); // Reset books when changing category
-    setStartIndex(0); // Reset start index
-    setSelectedCategory(e.target.value);
+  const handleCategoryChange = (value) => {
+    setBooks([]);
+    setStartIndex(0);
+    setSelectedCategory(value);
   };
 
   return (
@@ -136,17 +136,19 @@ const BookCarousel = () => {
         </div>
       </div>
 
-      {/* Category Dropdown + Load More */}
-      <div className="load-more-wrapper">
-        <select
-          className="category-select"
-          value={selectedCategory}
-          onChange={handleCategoryChange}
-        >
+      {/* Category Buttons + Load More */}
+      <div className="category-dropdown-wrapper">
+        <div className="category-dropdown">
           {categories.map((cat) => (
-            <option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
+            <button
+              key={cat.value}
+              onClick={() => handleCategoryChange(cat.value)}
+              className={`category-btn ${selectedCategory === cat.value ? 'selected' : ''}`}
+            >
+              {cat.icon} <span>{cat.label}</span>
+            </button>
           ))}
-        </select>
+        </div>
 
         <button onClick={handleLoadMore} disabled={loading} className="load-more-btn">
           {loading ? "Loading..." : "Load More"}
