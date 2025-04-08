@@ -1,21 +1,88 @@
+/* ======= Container ======= */
 .signup-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
   background-image: url('https://images.unsplash.com/photo-1524995997946-a1c2e315a42f');
   background-size: cover;
   background-position: center;
-  backdrop-filter: blur(4px);
+  background-repeat: no-repeat;
   padding: 20px;
+  backdrop-filter: blur(5px);
 }
 
+/* ======= Form ======= */
 .signup-form {
-  background-color: rgba(255, 255, 255, 0.9);
-  padding: 40px;
+  background-color: rgba(255, 255, 255, 0.94);
+  padding: 40px 30px;
   border-radius: 20px;
-  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.2);
-  max-width: 400px;
+  max-width: 420px;
   width: 100%;
-  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  font-family: 'Georgia', serif;
 }
+
+/* ======= Heading ======= */
+.signup-form h2 {
+  text-align: center;
+  font-size: 26px;
+  margin-bottom: 10px;
+  color: #a00000;
+}
+
+/* ======= Inputs ======= */
+.signup-form input {
+  padding: 12px 14px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  transition: border-color 0.3s ease;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.signup-form input:focus {
+  outline: none;
+  border-color: #a00000;
+  box-shadow: 0 0 5px rgba(160, 0, 0, 0.2);
+}
+
+/* ======= Button ======= */
+.signup-form button {
+  padding: 12px;
+  font-size: 16px;
+  background-color: #a00000;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.signup-form button:hover {
+  background-color: #890000;
+  transform: scale(1.02);
+}
+
+/* ======= Responsive ======= */
+@media (max-width: 480px) {
+  .signup-form {
+    padding: 30px 20px;
+  }
+}
+
+/* ======= Optional: Add Icons using ::before (with FontAwesome or similar) ======= */
+.signup-form input[type="email"]::placeholder {
+  content: "📧 Email";
+}
+
+.signup-form input[type="password"]::placeholder {
+  content: "🔒 Password";
+}
+
+/* For browsers that don’t support ::placeholder content override, use FontAwesome or prepend icons in JSX */
