@@ -1,14 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import './BookCarousel.css';
+import { FaHeart, FaRegHeart } from 'react-icons/fa';
+import { db } from '../firebase';
+import { doc, setDoc, deleteDoc, getDocs, collection } from 'firebase/firestore';
+import { useAuth } from '../context/AuthContext';
 
 const BookCarousel = () => {
   const [books, setBooks] = useState([]);
   const [startIndex, setStartIndex] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [savedBookIds, setSavedBookIds] = useState([]);
 
-  // Generate a random starting index (between 0 and 100 for example)
+  const { currentUser } = useAuth();
+
   useEffect(() => {
-    const randomStart = Math.floor(Math.random() * 100); // Adjust range as needed
+    const randomStart = Math.floor(Math.random() * 100);
     setStartIndex(randomStart);
   }, []);
 
@@ -32,6 +38,39 @@ const BookCarousel = () => {
       fetchBooks();
     }
   }, [startIndex]);
+
+  const fetchSavedBooks = async () => {
+    if (!currentUser) return;
+    const ref = collection(db, 'users', currentUser.uid, 'savedBooks');
+    const snapshot = await getDocs(ref);
+    const ids = snapshot.docs.map(doc => doc.id);
+    setSavedBookIds(ids);
+  };
+
+  useEffect(() => {
+    fetchSavedBooks();
+  }, [currentUser]);
+
+  const isBookSaved = (bookId) => savedBookIds.includes(bookId);
+
+  const toggleSaveBook = async (book) => {
+    if (!currentUser) return alert('Please sign in to save books.');
+
+    const bookRef = doc(db, 'users', currentUser.uid, 'savedBooks', book.id);
+
+    if (isBookSaved(book.id)) {
+      await deleteDoc(bookRef);
+      setSavedBookIds((prev) => prev.filter((id) => id !== book.id));
+    } else {
+      await setDoc(bookRef, {
+        id: book.id,
+        title: book.volumeInfo.title,
+        image: book.volumeInfo.imageLinks?.thumbnail || '',
+        previewLink: book.volumeInfo.previewLink,
+      });
+      setSavedBookIds((prev) => [...prev, book.id]);
+    }
+  };
 
   const handleLoadMore = () => {
     setStartIndex((prev) => prev + 10);
@@ -67,6 +106,12 @@ const BookCarousel = () => {
                     Not Available
                   </button>
                 )}
+
+                <button className="save-icon" onClick={() => toggleSaveBook(book)}>
+                  {isBookSaved(book.id)
+                    ? <FaHeart color="red" />
+                    : <FaRegHeart color="white" />}
+                </button>
               </div>
             );
           })}

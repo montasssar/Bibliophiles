@@ -1,8 +1,8 @@
 // src/firebase.js
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore"; // ✅ Firestore import
 
-// ✅ Firebase project config from your Firebase Console
 const firebaseConfig = {
   apiKey: "AIzaSyBvHqRyAp6_lkvy7MFnxXsOFboS2cMIMTI",
   authDomain: "bibliophiles-7bf1d.firebaseapp.com",
@@ -13,8 +13,8 @@ const firebaseConfig = {
   measurementId: "G-0QNRF1KLZ6"
 };
 
-// 🔥 Initialize Firebase + Auth only (we don't need analytics right now)
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app); // ✅ Add this line
 
-export { auth };
+export { auth, db }; // ✅ Export both
