@@ -1,0 +1,52 @@
+.brief-reads-container {
+    padding: 40px 20px;
+    background-color: #fef9f9;
+  }
+  
+  .brief-reads-title {
+    font-size: 1.8rem;
+    color: #d33c3c;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .quote-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    align-items: center;
+  }
+  
+  .quote-card {
+    background-color: #fff;
+    border-left: 5px solid #d33c3c;
+    border-radius: 12px;
+    padding: 18px 24px;
+    width: 100%;
+    max-width: 750px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s ease;
+  }
+  
+  .quote-card:hover {
+    transform: translateY(-3px);
+  }
+  
+  .quote-text {
+    font-size: 1.15rem;
+    color: #333;
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+  
+  .quote-author {
+    font-style: italic;
+    text-align: right;
+    color: #666;
+  }
+  
+  .rtl {
+    direction: rtl;
+    text-align: right;
+  }
+  

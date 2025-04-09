@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SearchBar from '../components/SearchBar';
+import BriefReads from '../components/BriefReads';
 import './HomePage.css';
 
 const HomePage = () => {
@@ -40,6 +41,8 @@ const HomePage = () => {
         setIsFocused={setIsFocused}
         onSearch={handleSearch}
       />
+
+      <BriefReads />
 
       {isFocused && books.length > 0 && (
         <div className="recommendations">
