@@ -6,6 +6,7 @@ import HomePage from './pages/HomePage';
 import LibraryPage from './pages/LibraryPage';
 import SignUp from './components/SignUp';
 import SignIn from './components/SignIn';
+import BookReader from './components/BookReader'; 
 
 const App = () => {
   return (
@@ -17,6 +18,7 @@ const App = () => {
         <Route path="/library" element={<LibraryPage />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/signin" element={<SignIn />} />
+        <Route path="/book/:id" element={<BookReader />} /> 
       </Routes>
     </Router>
   );

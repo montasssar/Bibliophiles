@@ -1,17 +1,29 @@
-import React from 'react';
+// components/SearchBar.js
+import React, { useState, useEffect } from 'react';
 import { FiSearch } from 'react-icons/fi';
 import { IoMdClose } from 'react-icons/io';
 import './SearchBar.css';
 
-const SearchBar = ({ query, setQuery, setIsFocused }) => {
+const SearchBar = ({ query, setQuery, setIsFocused, onSearch }) => {
+  const [debounceTimeout, setDebounceTimeout] = useState(null);
+
   const handleInputChange = (e) => {
-    setQuery(e.target.value);
+    const newQuery = e.target.value;
+    setQuery(newQuery);
     setIsFocused(true);
+
+    // Debounce to reduce rapid calls
+    if (debounceTimeout) clearTimeout(debounceTimeout);
+    const timeout = setTimeout(() => {
+      if (onSearch) onSearch(newQuery);
+    }, 400); // 400ms delay
+    setDebounceTimeout(timeout);
   };
 
   const handleClear = (e) => {
     e.stopPropagation();
     setQuery('');
+    if (onSearch) onSearch('');
     setIsFocused(true);
   };
 

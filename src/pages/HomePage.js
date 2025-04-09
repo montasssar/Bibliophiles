@@ -1,46 +1,58 @@
 // src/pages/HomePage.js
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import SearchBar from '../components/SearchBar';
 import './HomePage.css';
-
-// 🧪 Mock data for now (you'll later fetch from Firebase or another backend)
-const mockBooks = [
-  { id: 1, title: 'The Prophet', author: 'Kahlil Gibran', language: 'EN' },
-  { id: 2, title: 'الأجنحة المتكسرة', author: 'جبران خليل جبران', language: 'AR' },
-  { id: 3, title: 'Animal Farm', author: 'George Orwell', language: 'EN' },
-  { id: 4, title: 'رجال في الشمس', author: 'غسان كنفاني', language: 'AR' },
-  { id: 5, title: 'To Kill a Mockingbird', author: 'Harper Lee', language: 'EN' }
-];
 
 const HomePage = () => {
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
-  const [filteredBooks, setFilteredBooks] = useState(mockBooks);
+  const [books, setBooks] = useState([]);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const lowerQuery = query.toLowerCase();
-    const results = mockBooks.filter(
-      (book) =>
-        book.title.toLowerCase().includes(lowerQuery) ||
-        book.author.toLowerCase().includes(lowerQuery)
+  const handleSearch = async (searchTerm) => {
+    if (!searchTerm) return setBooks([]);
+
+    const response = await fetch(
+      `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(searchTerm)}`
     );
-    setFilteredBooks(results);
-  }, [query]);
+    const data = await response.json();
+    const bookItems = data.items?.map((item) => ({
+      id: item.id,
+      title: item.volumeInfo.title,
+      author: item.volumeInfo.authors?.[0] || 'Unknown',
+      thumbnail: item.volumeInfo.imageLinks?.thumbnail,
+      description: item.volumeInfo.description || 'No description available.',
+    })) || [];
+
+    setBooks(bookItems);
+  };
+
+  const handleRead = (book) => {
+    navigate(`/book/${book.id}`, { state: { book } });
+  };
 
   return (
     <div className="homepage-container">
-      <SearchBar query={query} setQuery={setQuery} setIsFocused={setIsFocused} />
+      <SearchBar
+        query={query}
+        setQuery={setQuery}
+        setIsFocused={setIsFocused}
+        onSearch={handleSearch}
+      />
 
-      {isFocused && (
+      {isFocused && books.length > 0 && (
         <div className="recommendations">
-          <h2>Recommended Books</h2>
+          <h2>Search Results</h2>
           <div className="book-grid">
-            {filteredBooks.map((book) => (
+            {books.map((book) => (
               <div key={book.id} className="book-card">
+                {book.thumbnail && <img src={book.thumbnail} alt={book.title} />}
                 <h3>{book.title}</h3>
                 <p><strong>Author:</strong> {book.author}</p>
-                <span className={`lang-tag ${book.language === 'AR' ? 'ar' : 'en'}`}>{book.language}</span>
-                <button className="read-btn">Read</button>
+                <button className="read-btn" onClick={() => handleRead(book)}>
+                  Read
+                </button>
               </div>
             ))}
           </div>
