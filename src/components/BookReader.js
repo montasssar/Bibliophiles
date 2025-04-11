@@ -1,7 +1,7 @@
 // src/pages/BookReader.js
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import './BookReader.css';
+import '../styles//BookReader.css';
 
 const BookReader = () => {
   const location = useLocation();

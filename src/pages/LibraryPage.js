@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { db } from '../firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
-import '../components/BookCarousel.css'; // Correct style path
+import '../styles/BookCarousel.css';
 
 const LibraryPage = () => {
   const { currentUser } = useAuth();

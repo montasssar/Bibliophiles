@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import './BookCarousel.css';
+import React from 'react';
+import '../styles/BookCarousel.css';
 import { FaHeart, FaRegHeart, FaBook, FaFeatherAlt, FaLandmark, FaFlask, FaMask, FaTheaterMasks, FaBrain } from 'react-icons/fa';
-import { db } from '../firebase';
-import { doc, setDoc, deleteDoc, getDocs, collection } from 'firebase/firestore';
+import useBooks from '../hooks/useBooks';
+import useSavedBooks from '../hooks/useSavedBooks';
 import { useAuth } from '../context/AuthContext';
 
 const categories = [
@@ -17,80 +17,14 @@ const categories = [
 ];
 
 const BookCarousel = () => {
-  const [books, setBooks] = useState([]);
-  const [startIndex, setStartIndex] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [savedBookIds, setSavedBookIds] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState('classics');
-
   const { currentUser } = useAuth();
+  const [selectedCategory, setSelectedCategory] = React.useState('classics');
 
-  useEffect(() => {
-    const randomStart = Math.floor(Math.random() * 100);
-    setStartIndex(randomStart);
-  }, [selectedCategory]);
-
-  const fetchBooks = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(
-        `https://www.googleapis.com/books/v1/volumes?q=${selectedCategory}+arabic+english&startIndex=${startIndex}&maxResults=10`
-      );
-      const data = await response.json();
-      setBooks((prevBooks) => [...prevBooks, ...(data.items || [])]);
-    } catch (error) {
-      console.error("Failed to fetch books:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (startIndex >= 0) {
-      fetchBooks();
-    }
-  }, [startIndex, selectedCategory]);
-
-  const fetchSavedBooks = async () => {
-    if (!currentUser) return;
-    const ref = collection(db, 'users', currentUser.uid, 'savedBooks');
-    const snapshot = await getDocs(ref);
-    const ids = snapshot.docs.map(doc => doc.id);
-    setSavedBookIds(ids);
-  };
-
-  useEffect(() => {
-    fetchSavedBooks();
-  }, [currentUser]);
-
-  const isBookSaved = (bookId) => savedBookIds.includes(bookId);
-
-  const toggleSaveBook = async (book) => {
-    if (!currentUser) return alert('Please sign in to save books.');
-
-    const bookRef = doc(db, 'users', currentUser.uid, 'savedBooks', book.id);
-
-    if (isBookSaved(book.id)) {
-      await deleteDoc(bookRef);
-      setSavedBookIds((prev) => prev.filter((id) => id !== book.id));
-    } else {
-      await setDoc(bookRef, {
-        id: book.id,
-        title: book.volumeInfo.title,
-        image: book.volumeInfo.imageLinks?.thumbnail || '',
-        previewLink: book.volumeInfo.previewLink,
-      });
-      setSavedBookIds((prev) => [...prev, book.id]);
-    }
-  };
-
-  const handleLoadMore = () => {
-    setStartIndex((prev) => prev + 10);
-  };
+  const { books, loading, loadMore, setBooks } = useBooks(selectedCategory);
+  const { savedBookIds, isBookSaved, toggleSaveBook } = useSavedBooks(currentUser);
 
   const handleCategoryChange = (value) => {
     setBooks([]);
-    setStartIndex(0);
     setSelectedCategory(value);
   };
 
@@ -112,17 +46,11 @@ const BookCarousel = () => {
                 <p title={title}>{title}</p>
 
                 {hasPreview ? (
-                  <a
-                    href={previewLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
+                  <a href={previewLink} target="_blank" rel="noopener noreferrer">
                     <button className="read-now-btn">Read Now</button>
                   </a>
                 ) : (
-                  <button className="read-now-btn disabled" disabled>
-                    Not Available
-                  </button>
+                  <button className="read-now-btn disabled" disabled>Not Available</button>
                 )}
 
                 <button className="save-icon" onClick={() => toggleSaveBook(book)}>
@@ -136,7 +64,6 @@ const BookCarousel = () => {
         </div>
       </div>
 
-      {/* Category Buttons + Load More */}
       <div className="category-dropdown-wrapper">
         <div className="category-dropdown">
           {categories.map((cat) => (
@@ -150,7 +77,7 @@ const BookCarousel = () => {
           ))}
         </div>
 
-        <button onClick={handleLoadMore} disabled={loading} className="load-more-btn">
+        <button onClick={loadMore} disabled={loading} className="load-more-btn">
           {loading ? "Loading..." : "Load More"}
         </button>
       </div>

@@ -1,23 +1,18 @@
-import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import './SignIn.css'; // external styles
+import React from 'react';
+import '../styles/SignIn.css';
+import useSignIn from '../hooks/useSignIn';
+import useRedirectIfAuthenticated from '../hooks/useRedirectIfAuthenticated';
 
 const SignIn = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const { logIn } = useAuth();
-  const navigate = useNavigate();
+  const {
+    email,
+    password,
+    setEmail,
+    setPassword,
+    handleSubmit
+  } = useSignIn();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await logIn(email, password);
-      navigate('/home');
-    } catch (error) {
-      alert(error.message);
-    }
-  };
+  useRedirectIfAuthenticated(); // 👈 This line handles auto-redirect if user is already signed in
 
   return (
     <div className="signin-container">
@@ -26,12 +21,14 @@ const SignIn = () => {
         <input
           type="email"
           placeholder="Email"
+          value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
         />
         <input
           type="password"
           placeholder="Password"
+          value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
         />

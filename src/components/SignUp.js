@@ -1,54 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { createUserWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
-import { auth, db } from '../firebase';
+import React from 'react';
 import { motion } from 'framer-motion';
-import './SignUp.css';
+import '../styles/SignUp.css';
+import useSignUp from '../hooks/useSignUp';
 
 const SignUp = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const navigate = useNavigate();
-
-  // 🔁 Auto-Redirect if user is already logged in
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        navigate('/landing'); // Already logged-in users go here
-      }
-    });
-    return () => unsubscribe();
-  }, [navigate]);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (password !== confirmPassword) {
-      alert("Passwords don't match!");
-      return;
-    }
-
-    try {
-      // 🧑‍💻 Create user with Firebase Auth
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-
-      // 🗂️ Save metadata to Firestore
-      await setDoc(doc(db, 'users', user.uid), {
-        email: user.email,
-        createdAt: new Date(),
-        isWriter: false,
-      });
-
-      // ✅ After sign-up, go to HomePage
-      navigate('/home');
-    } catch (error) {
-      console.error('Signup error:', error.message);
-      alert(error.message);
-    }
-  };
+  const {
+    email,
+    password,
+    confirmPassword,
+    setEmail,
+    setPassword,
+    setConfirmPassword,
+    handleSubmit,
+  } = useSignUp();
 
   return (
     <div className="signup-container">

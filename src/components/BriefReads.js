@@ -1,46 +1,13 @@
 import React from 'react';
-import './BriefReads.css';
-
-const quotes = [
-  {
-    id: 1,
-    text: "وإذا مرّ يومٌ ولم أُذكر فيه، فذلك يومٌ ليس من عمري.",
-    author: "محمود درويش",
-    lang: 'AR',
-  },
-  {
-    id: 2,
-    text: "We read to know we are not alone.",
-    author: "William Nicholson",
-    lang: 'EN',
-  },
-  {
-    id: 3,
-    text: "من لم يشكر الناس لم يشكر الله.",
-    author: "حديث نبوي",
-    lang: 'AR',
-  },
-  {
-    id: 4,
-    text: "A reader lives a thousand lives before he dies.",
-    author: "George R.R. Martin",
-    lang: 'EN',
-  },
-  {
-    id: 5,
-    text: "اقرأ، فإن القراءة مفتاح المعرفة.",
-    author: "مصطفى محمود",
-    lang: 'AR',
-  },
-  {
-    id: 6,
-    text: "Books are a uniquely portable magic.",
-    author: "Stephen King",
-    lang: 'EN',
-  },
-];
+import '../styles/BriefReads.css';
+import useQuotes from '../hooks/useQuotes';
 
 const BriefReads = () => {
+  const { quotes, loading, error } = useQuotes(6);
+
+  if (loading) return <p className="brief-reads-title">Loading quotes...</p>;
+  if (error) return <p className="brief-reads-title">{error}</p>;
+
   return (
     <div className="brief-reads-container">
       <h2 className="brief-reads-title">📚 Brief Reads</h2>
