@@ -1,4 +1,3 @@
-// src/hooks/useQuotes.js
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
@@ -10,14 +9,9 @@ const useQuotes = (limit = 6) => {
   useEffect(() => {
     const fetchQuotes = async () => {
       try {
-        const res = await axios.get(`https://api.quotable.io/quotes?limit=${limit}`);
-        const formatted = res.data.results.map((quote) => ({
-          id: quote._id,
-          text: quote.content,
-          author: quote.author,
-          lang: 'EN', // All quotes from Quotable are in English
-        }));
-        setQuotes(formatted);
+        const res = await axios.get(`/api/briefreads?limit=${limit}`);
+
+        setQuotes(res.data);
       } catch (err) {
         setError('Failed to load quotes.');
         console.error(err);
