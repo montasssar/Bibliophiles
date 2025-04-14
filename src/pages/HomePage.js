@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SearchBar from '../components/SearchBar';
+import BriefReads from '../components/BriefReads'; // ✅ Add this import
 import useBookSearch from '../hooks/useBookSearch';
 import useSavedBooks from '../hooks/useSavedBooks';
 import { useAuth } from '../context/AuthContext';
@@ -11,7 +12,7 @@ const HomePage = () => {
   const [isFocused, setIsFocused] = useState(false);
 
   const { books, loading, error, searchBooks } = useBookSearch();
-  const { currentUser } = useAuth(); // ✅ AuthContext via hook
+  const { currentUser } = useAuth();
   const { isBookSaved, toggleSaveBook } = useSavedBooks(currentUser);
   const navigate = useNavigate();
 
@@ -36,7 +37,16 @@ const HomePage = () => {
         value={query}
         onChange={handleQueryChange}
         onClear={handleClear}
+        setIsFocused={setIsFocused}
       />
+
+      {/* ✅ Brief Reads Section */}
+      {!isFocused && (
+        <div className="briefreads-section">
+          <h2 className="briefreads-title">BRIEF READS</h2>
+          <BriefReads />
+        </div>
+      )}
 
       {isFocused && (
         <div className="recommendations">

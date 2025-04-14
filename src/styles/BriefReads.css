@@ -1,75 +1,82 @@
-
-.brief-reads-container {
-  padding: 40px 20px;
-  background-color: #fef9f9;
-}
-
-.brief-reads-title {
-  font-size: 1.8rem;
-  color: #d33c3c;
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.quote-feed {
+.briefreads-container {
   display: flex;
   flex-direction: column;
-  gap: 24px;
   align-items: center;
+  gap: 24px;
+  margin: 0 auto;
+  padding: 30px 0;
 }
 
+/* Section Title */
+.briefreads-title {
+  text-align: center;
+  font-size: 2rem;
+  color: #b83b32;
+  font-weight: bold;
+  margin: 40px 0 20px;
+}
+
+/* Individual Quote Card */
 .quote-card {
-  background-color: #fff;
-  border-left: 5px solid #d33c3c;
-  border-radius: 12px;
-  padding: 18px 24px;
-  width: 100%;
-  max-width: 750px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  max-width: 700px;
+  width: 90%;
+  background-color: #ffffff;
+  border-left: 5px solid #b83b32;
+  border-radius: 16px;
+  padding: 30px 20px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.06);
+  text-align: center;
   transition: transform 0.2s ease;
+  position: relative;
 }
 
 .quote-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-5px);
 }
 
-.quote-text {
-  font-size: 1.15rem;
-  color: #333;
-  line-height: 1.6;
+/* Quote Icon */
+.quote-icon {
+  font-size: 1.5rem;
+  color: #b83b32;
   margin-bottom: 10px;
 }
 
-.quote-author {
+/* Quote Text */
+.quote-text {
   font-style: italic;
-  text-align: right;
-  color: #666;
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  color: #333;
+  line-height: 1.6;
 }
 
-.rtl {
-  direction: rtl;
-  text-align: right;
+/* Author */
+.quote-author {
+  display: block;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 12px;
 }
 
-
-.spinner {
-  border: 4px solid #f3f3f3; /* Light gray */
-  border-top: 4px solid #d33c3c; /* Red */
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 1s linear infinite;
-  margin: 0 auto;
+/* Save/Unsave Button */
+.save-quote-btn {
+  background: transparent;
+  border: 1.5px solid #b83b32;
+  color: #b83b32;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.save-quote-btn:hover {
+  background-color: #b83b32;
+  color: #ffffff;
 }
 
-.spinner-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 150px; /* You can adjust this to make it more prominent */
+.save-quote-btn.saved {
+  background-color: #b83b32;
+  color: #ffffff;
 }
