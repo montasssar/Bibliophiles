@@ -2,33 +2,18 @@ import React from 'react';
 import { FiSearch } from 'react-icons/fi';
 import { IoMdClose } from 'react-icons/io';
 import '../styles/SearchBar.css';
-import useDebouncedSearch from '../hooks/useDebouncedSearch';
 
-const SearchBar = ({ query, setQuery, setIsFocused, onSearch }) => {
-  useDebouncedSearch(query, 400, onSearch);
-
-  const handleInputChange = (e) => {
-    setQuery(e.target.value);
-    setIsFocused(true);
-  };
-
-  const handleClear = (e) => {
-    e.stopPropagation();
-    setQuery('');
-    if (onSearch) onSearch('');
-    setIsFocused(true);
-  };
-
+const SearchBar = ({ value, onChange, onClear }) => {
   return (
-    <div className="search-bar-container" onClick={() => setIsFocused(true)}>
+    <div className="search-bar-container">
       <input
         type="text"
-        value={query}
-        onChange={handleInputChange}
-        placeholder="Looking for a Book, type Here"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="Looking for a Book, type here"
         className="search-input"
       />
-      {query && <IoMdClose className="clear-icon" onClick={handleClear} />}
+      {value && <IoMdClose className="clear-icon" onClick={onClear} />}
       <FiSearch className="search-icon" />
     </div>
   );

@@ -1,4 +1,4 @@
-// src/hooks/useSavedBooks.js
+// hooks/useSavedBooks.js
 import { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { doc, setDoc, deleteDoc, getDocs, collection } from 'firebase/firestore';
@@ -30,9 +30,9 @@ const useSavedBooks = (currentUser) => {
     } else {
       await setDoc(bookRef, {
         id: book.id,
-        title: book.volumeInfo.title,
-        image: book.volumeInfo.imageLinks?.thumbnail || '',
-        previewLink: book.volumeInfo.previewLink,
+        title: book.title,
+        image: book.thumbnail || '',
+        previewLink: book.previewLink || '',
       });
       setSavedBookIds((prev) => [...prev, book.id]);
     }
