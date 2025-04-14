@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SearchBar from '../components/SearchBar';
-import BriefReads from '../components/BriefReads'; // ✅ Add this import
+import BriefReads from '../components/BriefReads'; 
 import useBookSearch from '../hooks/useBookSearch';
 import useSavedBooks from '../hooks/useSavedBooks';
 import { useAuth } from '../context/AuthContext';
@@ -43,7 +43,7 @@ const HomePage = () => {
       {/* ✅ Brief Reads Section */}
       {!isFocused && (
         <div className="briefreads-section">
-          <h2 className="briefreads-title">BRIEF READS</h2>
+          <h2 className="briefreads-title">Brief Reads</h2>
           <BriefReads />
         </div>
       )}
