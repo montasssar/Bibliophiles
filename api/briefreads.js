@@ -1,3 +1,4 @@
+// backend/routes/briefreads.js
 const express = require('express');
 const axios = require('axios');
 
@@ -6,7 +7,11 @@ const router = express.Router();
 router.get('/api/briefreads', async (req, res) => {
   try {
     const limit = req.query.limit || 6;
-    const response = await axios.get(`https://api.quotable.io/quotes?limit=${limit}`);
+    const page = req.query.page || 1;
+    const sort = req.query.sort || 'random'; 
+
+    const apiUrl = `https://api.quotable.io/quotes?limit=${limit}&page=${page}&sort=${sort}`;
+    const response = await axios.get(apiUrl);
 
     const formattedQuotes = response.data.results.map((quote) => ({
       id: quote._id,
@@ -17,7 +22,7 @@ router.get('/api/briefreads', async (req, res) => {
 
     res.json(formattedQuotes);
   } catch (error) {
-    console.error('❌ Error fetching quotes:', error.message);
+    console.error('❌ Error fetching quotes:', error?.response?.data || error.message || error);
     res.status(500).json({ error: 'Failed to fetch quotes' });
   }
 });
