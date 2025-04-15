@@ -10,6 +10,7 @@ const useQuotes = () => {
   const [selectedTag, setSelectedTag] = useState('');
 
   const shownQuoteIdsRef = useRef(new Set());
+  const lastAuthorsRef = useRef([]); // Track last 2 authors
 
   useEffect(() => {
     const handleScroll = () => {
@@ -37,14 +38,27 @@ const useQuotes = () => {
       const res = await axios.get(`/api/briefreads?limit=6&page=${pg}&sort=random&tags=${tag}`);
       const newQuotes = res.data;
 
-      const uniqueNewQuotes = newQuotes.filter((q) => !shownQuoteIdsRef.current.has(q.id));
+      // Filter out duplicates and authors in last 2
+      const uniqueNewQuotes = newQuotes.filter((q) => {
+        const isNewId = !shownQuoteIdsRef.current.has(q.id);
+        const isNewAuthor = !lastAuthorsRef.current.includes(q.author);
+        return isNewId && isNewAuthor;
+      });
+
       uniqueNewQuotes.forEach((q) => shownQuoteIdsRef.current.add(q.id));
+
+      if (uniqueNewQuotes.length > 0) {
+        const lastAuthor = uniqueNewQuotes[uniqueNewQuotes.length - 1].author;
+        lastAuthorsRef.current.push(lastAuthor);
+        if (lastAuthorsRef.current.length > 2) {
+          lastAuthorsRef.current.shift();
+        }
+      }
 
       setQuotes((prev) => [...prev, ...uniqueNewQuotes]);
 
-      // Always allow infinite scroll; do not force hasMore to false
-      // Optionally: stop only if backend returns 0
-      if (uniqueNewQuotes.length === 0) {
+      // Only stop if the backend gives nothing new at all
+      if (newQuotes.length === 0) {
         setHasMore(false);
       }
     } catch (err) {
@@ -61,6 +75,7 @@ const useQuotes = () => {
     setPage(1);
     setHasMore(true);
     shownQuoteIdsRef.current.clear();
+    lastAuthorsRef.current = [];
   };
 
   return {
