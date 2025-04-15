@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { FaQuoteLeft } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
@@ -6,27 +6,37 @@ import useQuotes from '../hooks/useQuotes';
 import useSavedBooks from '../hooks/useSavedBooks';
 import '../styles/BriefReads.css';
 
+const moods = [
+  { label: 'All Moods', tag: '' },
+  { label: 'Inspiration ✨', tag: 'inspirational' },
+  { label: 'Philosophy 🧠', tag: 'wisdom|philosophy' },
+  { label: 'Romantic 💘', tag: 'love|poetry' },
+  { label: 'Literary 📚', tag: 'literature|truth' },
+  { label: 'Life 🌱', tag: 'life|motivational' },
+];
+
 const BriefReads = () => {
-  const { quotes, loading, error, setPage, hasMore } = useQuotes();
   const { currentUser } = useAuth();
   const { isBookSaved, toggleSaveBook } = useSavedBooks(currentUser);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollBottom =
-        window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
-
-      if (scrollBottom && hasMore && !loading) {
-        setPage((prev) => prev + 1);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [loading, hasMore, setPage]);
+  const { quotes, loading, error, hasMore, selectedTag, setSelectedTag } = useQuotes();
 
   return (
     <div className="briefreads-container">
+      <div className="mood-selector">
+        <label htmlFor="mood-select">What’s your vibe?</label>
+        <select
+          id="mood-select"
+          value={selectedTag}
+          onChange={(e) => setSelectedTag(e.target.value)}
+        >
+          {moods.map((mood) => (
+            <option key={mood.tag} value={mood.tag}>
+              {mood.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
       {quotes.map((quote, index) => (
         <motion.div
           className="quote-card"
@@ -50,7 +60,7 @@ const BriefReads = () => {
       ))}
 
       {loading && <p>Loading more quotes...</p>}
-      {error && <p>{error}</p>}
+      {error && <p className="error">{error}</p>}
       {!hasMore && <p>No more quotes to load.</p>}
     </div>
   );
