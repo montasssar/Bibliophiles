@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import ScrollToTop from '../components/ScrollToTop';
 import SearchBar from '../components/SearchBar';
-import BriefReads from '../components/BriefReads'; 
+import BriefReads from '../components/BriefReads';
 import useBookSearch from '../hooks/useBookSearch';
 import useSavedBooks from '../hooks/useSavedBooks';
 import { useAuth } from '../context/AuthContext';
@@ -126,6 +127,9 @@ const HomePage = () => {
           )}
         </motion.section>
       )}
+
+      {/* Glowing scroll-to-top arrow */}
+      <ScrollToTop />
     </main>
   );
 };
