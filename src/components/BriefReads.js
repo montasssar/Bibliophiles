@@ -15,10 +15,27 @@ const moods = [
   { label: 'Life 🌱', tag: 'life|motivational' },
 ];
 
+const mindsByTag = {
+  inspirational: ['Maya Angelou', 'Oprah Winfrey', 'Steve Jobs', 'Brené Brown'],
+  'wisdom|philosophy': ['Socrates', 'Nietzsche', 'Marcus Aurelius', 'Lao Tzu'],
+  'love|poetry': ['Rumi', 'Pablo Neruda', 'Kahlil Gibran', 'Emily Dickinson'],
+  'literature|truth': ['George Orwell', 'Toni Morrison', 'Franz Kafka', 'Jean-Paul Sartre'],
+  'life|motivational': ['Helen Keller', 'Seneca', 'Eckhart Tolle', 'Thich Nhat Hanh'],
+};
+
 const BriefReads = () => {
   const { currentUser } = useAuth();
   const { isBookSaved, toggleSaveBook } = useSavedBooks(currentUser);
-  const { quotes, loading, error, hasMore, selectedTag, setSelectedTag } = useQuotes();
+  const {
+    quotes,
+    loading,
+    error,
+    hasMore,
+    selectedTag,
+    setSelectedTag,
+    selectedAuthor,
+    setSelectedAuthor,
+  } = useQuotes();
 
   return (
     <div className="briefreads-container">
@@ -36,6 +53,33 @@ const BriefReads = () => {
           ))}
         </select>
       </div>
+
+      {selectedTag && mindsByTag[selectedTag] && (
+        <div className="minds-intro">
+          <p>
+            ✨ <em>From minds like:</em>{' '}
+            {mindsByTag[selectedTag].map((author, index) => (
+              <span
+                key={author}
+                className="mind-link"
+                onClick={() => setSelectedAuthor(author)}
+              >
+                {author}
+                {index < mindsByTag[selectedTag].length - 1 ? ', ' : ''}
+              </span>
+            ))}
+          </p>
+        </div>
+      )}
+
+      {selectedAuthor && (
+        <div className="author-filter-banner">
+          <p>
+            🎤 Showing quotes from <strong>{selectedAuthor}</strong>
+            <button onClick={() => setSelectedAuthor('')}>Clear</button>
+          </p>
+        </div>
+      )}
 
       {quotes.map((quote, index) => (
         <motion.div

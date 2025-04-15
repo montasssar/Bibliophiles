@@ -11,11 +11,12 @@ router.get('/api/briefreads', async (req, res) => {
     const page = req.query.page || 1;
     const sort = req.query.sort || 'random';
     const tags = req.query.tags || '';
+    const author = req.query.author || '';
 
     let combinedQuotes = [];
 
-    if (!tags) {
-      // Fetch from both sources if no tag filter is applied
+    if (!tags && !author) {
+      // Fetch from both sources if no filter is applied
       const quotableUrl = `https://api.quotable.io/quotes?limit=${limit}&page=${page}&sort=${sort}`;
       const typefitUrl = 'https://type.fit/api/quotes';
 
@@ -47,8 +48,11 @@ router.get('/api/briefreads', async (req, res) => {
 
       combinedQuotes = shuffleArray([...quotesFromQuotable, ...quotesFromTypeFit]).slice(0, limit);
     } else {
-      // Only fetch from Quotable with tag filtering
-      const quotableUrl = `https://api.quotable.io/quotes?limit=${limit}&page=${page}&sort=${sort}&tags=${encodeURIComponent(tags)}`;
+      // Build query string dynamically
+      let quotableUrl = `https://api.quotable.io/quotes?limit=${limit}&page=${page}&sort=${sort}`;
+      if (tags) quotableUrl += `&tags=${encodeURIComponent(tags)}`;
+      if (author) quotableUrl += `&author=${encodeURIComponent(author)}`;
+
       const response = await axios.get(quotableUrl);
       combinedQuotes = response.data.results.map((q) => ({
         id: q._id,

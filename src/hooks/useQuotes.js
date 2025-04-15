@@ -8,6 +8,7 @@ const useQuotes = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedTag, setSelectedTag] = useState('');
+  const [selectedAuthor, setSelectedAuthor] = useState('');
 
   const shownQuoteIdsRef = useRef(new Set());
   const lastAuthorsRef = useRef([]); // Track last 2 authors
@@ -27,15 +28,19 @@ const useQuotes = () => {
   }, [hasMore, loading]);
 
   useEffect(() => {
-    fetchQuotes(page, selectedTag);
+    fetchQuotes(page, selectedTag, selectedAuthor);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, selectedTag]);
+  }, [page, selectedTag, selectedAuthor]);
 
-  const fetchQuotes = async (pg, tag = '') => {
+  const fetchQuotes = async (pg, tag = '', author = '') => {
     if (loading || !hasMore) return;
     setLoading(true);
     try {
-      const res = await axios.get(`/api/briefreads?limit=6&page=${pg}&sort=random&tags=${tag}`);
+      let url = `/api/briefreads?limit=6&page=${pg}&sort=random`;
+      if (tag) url += `&tags=${encodeURIComponent(tag)}`;
+      if (author) url += `&author=${encodeURIComponent(author)}`;
+
+      const res = await axios.get(url);
       const newQuotes = res.data;
 
       // Filter out duplicates and authors in last 2
@@ -71,6 +76,16 @@ const useQuotes = () => {
 
   const handleMoodChange = (tag) => {
     setSelectedTag(tag);
+    setSelectedAuthor('');
+    setQuotes([]);
+    setPage(1);
+    setHasMore(true);
+    shownQuoteIdsRef.current.clear();
+    lastAuthorsRef.current = [];
+  };
+
+  const handleAuthorSelect = (author) => {
+    setSelectedAuthor(author);
     setQuotes([]);
     setPage(1);
     setHasMore(true);
@@ -85,6 +100,8 @@ const useQuotes = () => {
     hasMore,
     selectedTag,
     setSelectedTag: handleMoodChange,
+    selectedAuthor,
+    setSelectedAuthor: handleAuthorSelect,
   };
 };
 
