@@ -1,9 +1,8 @@
 import React from 'react';
-import HomePage from './HomePage';
-import LibraryPage from './LibraryPage';
 import { useNavigate } from 'react-router-dom';
 import bookshelfImg from '../assets/bookshelf.jpg';
 import BookCarousel from '../components/BookCarousel';
+import ScrollToTop from '../components/ScrollToTop'; // 🌟 Add this line
 import './LandingPage.css';
 
 const LandingPage = () => {
@@ -43,6 +42,8 @@ const LandingPage = () => {
           </a>
         </p>
       </footer>
+
+      <ScrollToTop />
     </div>
   );
 };
