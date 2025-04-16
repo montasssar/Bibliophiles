@@ -1,8 +1,5 @@
-// ✅ Updated BriefReads.js with UX Guardrails: fallback messaging, no crash, and hiding source info
-
 import React, { useState } from 'react';
 import { FaQuoteLeft } from 'react-icons/fa';
-import { IoMdClose } from 'react-icons/io';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import useQuotes from '../hooks/useQuotes';
@@ -97,9 +94,6 @@ const BriefReads = () => {
               onChange={(e) => setTypedAuthor(e.target.value)}
               onKeyDown={handleAuthorSubmit}
             />
-            {typedAuthor && (
-              <IoMdClose className="clear-input" onClick={clearAuthorInput} />
-            )}
           </div>
         </div>
       )}
