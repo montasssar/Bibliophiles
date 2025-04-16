@@ -1,5 +1,8 @@
-import React from 'react';
+// ✅ Updated BriefReads.js with UX Guardrails: fallback messaging, no crash, and hiding source info
+
+import React, { useState } from 'react';
 import { FaQuoteLeft } from 'react-icons/fa';
+import { IoMdClose } from 'react-icons/io';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import useQuotes from '../hooks/useQuotes';
@@ -37,6 +40,19 @@ const BriefReads = () => {
     setSelectedAuthor,
   } = useQuotes();
 
+  const [typedAuthor, setTypedAuthor] = useState('');
+
+  const handleAuthorSubmit = (e) => {
+    if (e.key === 'Enter' && typedAuthor.trim()) {
+      setSelectedAuthor(typedAuthor.trim());
+    }
+  };
+
+  const clearAuthorInput = () => {
+    setTypedAuthor('');
+    setSelectedAuthor('');
+  };
+
   return (
     <div className="briefreads-container">
       <div className="mood-selector">
@@ -55,20 +71,36 @@ const BriefReads = () => {
       </div>
 
       {selectedTag && mindsByTag[selectedTag] && (
-        <div className="minds-intro">
+        <div className="minds-intro-with-search">
           <p>
             ✨ <em>From minds like:</em>{' '}
             {mindsByTag[selectedTag].map((author, index) => (
               <span
                 key={author}
                 className="mind-link"
-                onClick={() => setSelectedAuthor(author)}
+                onClick={() => {
+                  setTypedAuthor(author);
+                  setSelectedAuthor(author);
+                }}
               >
                 {author}
                 {index < mindsByTag[selectedTag].length - 1 ? ', ' : ''}
               </span>
             ))}
           </p>
+
+          <div className="custom-author-search">
+            <input
+              type="text"
+              placeholder="Or type any author name..."
+              value={typedAuthor}
+              onChange={(e) => setTypedAuthor(e.target.value)}
+              onKeyDown={handleAuthorSubmit}
+            />
+            {typedAuthor && (
+              <IoMdClose className="clear-input" onClick={clearAuthorInput} />
+            )}
+          </div>
         </div>
       )}
 
@@ -76,36 +108,49 @@ const BriefReads = () => {
         <div className="author-filter-banner">
           <p>
             🎤 Showing quotes from <strong>{selectedAuthor}</strong>
-            <button onClick={() => setSelectedAuthor('')}>Clear</button>
+            <button onClick={clearAuthorInput}>Clear</button>
           </p>
         </div>
       )}
 
-      {quotes.map((quote, index) => (
-        <motion.div
-          className="quote-card"
-          key={quote.id}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: index * 0.1, duration: 0.5 }}
-        >
-          <FaQuoteLeft className="quote-icon" />
-          <p className="quote-text">“{quote.text}”</p>
-          <span className="quote-author">— {quote.author}</span>
-          <button
-            className={`save-quote-btn ${isBookSaved(quote.id) ? 'saved' : ''}`}
-            onClick={() =>
-              toggleSaveBook({ ...quote, title: quote.text, author: quote.author })
-            }
+      {quotes.length > 0 ? (
+        quotes.map((quote, index) => (
+          <motion.div
+            className="quote-card"
+            key={quote.id}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1, duration: 0.5 }}
           >
-            {isBookSaved(quote.id) ? '♥ Saved' : '♡ Save'}
-          </button>
-        </motion.div>
-      ))}
+            <FaQuoteLeft className="quote-icon" />
+            <p className="quote-text">“{quote.text}”</p>
+            <span className="quote-author">
+              — {quote.author}
+            </span>
+
+            <button
+              className={`save-quote-btn ${isBookSaved(quote.id) ? 'saved' : ''}`}
+              onClick={() =>
+                toggleSaveBook({ ...quote, title: quote.text, author: quote.author })
+              }
+            >
+              {isBookSaved(quote.id) ? '♥ Saved' : '♡ Save'}
+            </button>
+          </motion.div>
+        ))
+      ) : (
+        !loading && (
+          <p>
+            No quotes found for that author
+            <br />
+            Try selecting a mood from the dropdown above!
+          </p>
+        )
+      )}
 
       {loading && <p>Loading more quotes...</p>}
       {error && <p className="error">{error}</p>}
-      {!hasMore && <p>No more quotes to load.</p>}
+      {!hasMore && quotes.length > 0 && <p>No more quotes to load.</p>}
     </div>
   );
 };

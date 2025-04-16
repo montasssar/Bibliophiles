@@ -158,3 +158,44 @@
 .author-filter-banner button:hover {
   text-decoration: underline;
 }
+
+
+.minds-intro-with-search {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.custom-author-search input {
+  padding: 10px 16px;
+  border: 1.5px solid #b83b32;
+  border-radius: 12px;
+  font-size: 1rem;
+  outline: none;
+  width: 280px;
+  transition: box-shadow 0.3s ease;
+}
+
+.custom-author-search input:focus {
+  box-shadow: 0 0 8px rgba(184, 59, 50, 0.4);
+}
+
+.quote-source {
+  font-size: 0.8rem;
+  font-style: italic;
+  color: #999;
+  margin-left: 4px;
+}
+
+.clear-input {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+  color: #888;
+  cursor: pointer;
+}

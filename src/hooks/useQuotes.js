@@ -11,13 +11,14 @@ const useQuotes = () => {
   const [selectedAuthor, setSelectedAuthor] = useState('');
 
   const shownQuoteIdsRef = useRef(new Set());
-  const lastAuthorsRef = useRef([]); // Track last 2 authors
+  const lastAuthorsRef = useRef([]);
 
   useEffect(() => {
     const handleScroll = () => {
       if (
         window.innerHeight + window.scrollY >= document.body.offsetHeight - 100 &&
-        hasMore && !loading
+        hasMore &&
+        !loading
       ) {
         setPage((prev) => prev + 1);
       }
@@ -34,6 +35,7 @@ const useQuotes = () => {
 
   const fetchQuotes = async (pg, tag = '', author = '') => {
     if (loading || !hasMore) return;
+
     setLoading(true);
     try {
       let url = `/api/briefreads?limit=6&page=${pg}&sort=random`;
@@ -41,9 +43,8 @@ const useQuotes = () => {
       if (author) url += `&author=${encodeURIComponent(author)}`;
 
       const res = await axios.get(url);
-      const newQuotes = res.data;
+      const newQuotes = res.data || [];
 
-      // Filter out duplicates and authors in last 2
       const uniqueNewQuotes = newQuotes.filter((q) => {
         const isNewId = !shownQuoteIdsRef.current.has(q.id);
         const isNewAuthor = !lastAuthorsRef.current.includes(q.author);
@@ -55,20 +56,16 @@ const useQuotes = () => {
       if (uniqueNewQuotes.length > 0) {
         const lastAuthor = uniqueNewQuotes[uniqueNewQuotes.length - 1].author;
         lastAuthorsRef.current.push(lastAuthor);
-        if (lastAuthorsRef.current.length > 2) {
-          lastAuthorsRef.current.shift();
-        }
+        if (lastAuthorsRef.current.length > 2) lastAuthorsRef.current.shift();
       }
 
       setQuotes((prev) => [...prev, ...uniqueNewQuotes]);
-
-      // Only stop if the backend gives nothing new at all
-      if (newQuotes.length === 0) {
-        setHasMore(false);
-      }
+      setHasMore(newQuotes.length > 0);
+      setError(null);
     } catch (err) {
-      setError('Failed to load quotes');
-      console.error(err);
+      setHasMore(false);
+      setError('Failed to load quotes. Please try again later.');
+      console.warn(err); // less noisy than console.error
     } finally {
       setLoading(false);
     }
@@ -77,20 +74,21 @@ const useQuotes = () => {
   const handleMoodChange = (tag) => {
     setSelectedTag(tag);
     setSelectedAuthor('');
-    setQuotes([]);
-    setPage(1);
-    setHasMore(true);
-    shownQuoteIdsRef.current.clear();
-    lastAuthorsRef.current = [];
+    resetState();
   };
 
   const handleAuthorSelect = (author) => {
     setSelectedAuthor(author);
+    resetState();
+  };
+
+  const resetState = () => {
     setQuotes([]);
     setPage(1);
     setHasMore(true);
     shownQuoteIdsRef.current.clear();
     lastAuthorsRef.current = [];
+    setError(null);
   };
 
   return {
