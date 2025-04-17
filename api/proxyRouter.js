@@ -1,11 +1,11 @@
-// ✅ Proxy Router for QuoteGarden - now used by /api/briefreads for direct precision calls
-
 const express = require('express');
 const axios = require('axios');
+require('dotenv').config();
 
 const proxyRouter = express.Router();
 
-// Direct proxy for QuoteGarden (usable internally too)
+const QUOTEGARDEN_API = process.env.QUOTEGARDEN_API;
+
 proxyRouter.get('/proxy/quotegarden', async (req, res) => {
   const { author, limit = 10 } = req.query;
 
@@ -14,13 +14,10 @@ proxyRouter.get('/proxy/quotegarden', async (req, res) => {
   }
 
   try {
-    const response = await axios.get(
-      'https://quote-garden.onrender.com/api/v3/quotes',
-      {
-        params: { author, limit },
-        headers: { Accept: 'application/json' },
-      }
-    );
+    const response = await axios.get(QUOTEGARDEN_API, {
+      params: { author, limit },
+      headers: { Accept: 'application/json' },
+    });
     res.json(response.data);
   } catch (err) {
     console.warn('❌ QuoteGarden proxy failed:', err.message);
@@ -28,10 +25,9 @@ proxyRouter.get('/proxy/quotegarden', async (req, res) => {
   }
 });
 
-// Export to be used both as a standalone proxy and internally from /api/briefreads
 const fetchQuoteGarden = async (author, limit = 50) => {
   try {
-    const res = await axios.get('https://quote-garden.onrender.com/api/v3/quotes', {
+    const res = await axios.get(QUOTEGARDEN_API, {
       params: { author, limit },
       headers: { Accept: 'application/json' },
     });
