@@ -1,18 +1,31 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useLazyQuery } from '@apollo/client';
-import { GET_QUOTES, GET_RANDOM_QUOTES } from '../graphql/queries';
+import { GET_BRIEFREADS, GET_RANDOM_BRIEFREADS } from '../graphql/briefreadsQueries';
 
 const useQuotes = () => {
   const [quotes, setQuotes] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   const [selectedTag, setSelectedTag] = useState('');
   const [selectedAuthor, setSelectedAuthor] = useState('');
   const shownQuoteIdsRef = useRef(new Set());
   const lastAuthorsRef = useRef([]);
 
-  const [fetchQuotes] = useLazyQuery(GET_QUOTES, { fetchPolicy: 'no-cache' });
-  const [fetchRandom] = useLazyQuery(GET_RANDOM_QUOTES, { fetchPolicy: 'no-cache' });
+  const [fetchQuotes] = useLazyQuery(GET_BRIEFREADS, { fetchPolicy: 'no-cache' });
+  const [fetchRandom] = useLazyQuery(GET_RANDOM_BRIEFREADS, { fetchPolicy: 'no-cache' });
 
-  const fetch = async (author, tag) => {
+  const resetState = () => {
+    setQuotes([]);
+    shownQuoteIdsRef.current.clear();
+    lastAuthorsRef.current = [];
+    setError(null);
+  };
+
+  const fetch = useCallback(async (author, tag) => {
+    setLoading(true);
+    setError(null);
+
     try {
       const { data } = author
         ? await fetchQuotes({ variables: { filter: { author, limit: 6 } } })
@@ -27,20 +40,25 @@ const useQuotes = () => {
       });
 
       unique.forEach((q) => shownQuoteIdsRef.current.add(q.id));
+
       if (unique.length) {
-        lastAuthorsRef.current.push(unique[unique.length - 1].author);
+        const lastAuthor = unique[unique.length - 1].author;
+        lastAuthorsRef.current.push(lastAuthor);
         if (lastAuthorsRef.current.length > 2) lastAuthorsRef.current.shift();
       }
 
       setQuotes(unique);
     } catch (err) {
       console.warn('GraphQL fetch failed:', err.message);
+      setError('Could not load quotes. Please try again.');
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [fetchQuotes, fetchRandom]);
 
   useEffect(() => {
     fetch(selectedAuthor, selectedTag);
-  }, [selectedAuthor, selectedTag]);
+  }, [selectedAuthor, selectedTag, fetch]);
 
   const handleMoodChange = (tag) => {
     setSelectedTag(tag);
@@ -53,14 +71,10 @@ const useQuotes = () => {
     resetState();
   };
 
-  const resetState = () => {
-    setQuotes([]);
-    shownQuoteIdsRef.current.clear();
-    lastAuthorsRef.current = [];
-  };
-
   return {
     quotes,
+    loading,
+    error,
     selectedTag,
     setSelectedTag: handleMoodChange,
     selectedAuthor,

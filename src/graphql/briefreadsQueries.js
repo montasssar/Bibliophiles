@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
-export const GET_QUOTES = gql`
-  query GetQuotes($filter: QuoteFilter) {
+export const GET_BRIEFREADS = gql`
+  query GetBriefReads($filter: QuoteFilter) {
     quotes(filter: $filter) {
       id
       text
@@ -10,8 +10,8 @@ export const GET_QUOTES = gql`
   }
 `;
 
-export const GET_RANDOM_QUOTES = gql`
-  query GetRandomQuotes($limit: Int) {
+export const GET_RANDOM_BRIEFREADS = gql`
+  query GetRandomBriefReads($limit: Int) {
     randomQuotes(limit: $limit) {
       id
       text
