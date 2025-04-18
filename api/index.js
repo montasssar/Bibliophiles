@@ -1,23 +1,31 @@
-require('dotenv').config();
-
-if (process.env.NODE_ENV !== 'production') {
-  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-}
-
 const express = require('express');
 const cors = require('cors');
+const { ApolloServer } = require('apollo-server-express');
+const typeDefs = require('./graphql/schema');
+const resolvers = require('./graphql/resolvers');
+require('dotenv').config();
 
-const { proxyRouter } = require('./proxyRouter'); 
-const briefreadsRouter = require('./briefreads'); 
+async function startServer() {
+  const app = express();
+  app.use(cors());
 
-const app = express();
-const PORT = process.env.PORT || 5000;
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+    introspection: true,
+    formatError: (err) => {
+      console.error('❌ GraphQL Error:', err.message);
+      return err;
+    },
+  });
 
-app.use(cors());
+  await server.start();
+  server.applyMiddleware({ app, path: '/graphql' });
 
-app.use(proxyRouter);      
-app.use(briefreadsRouter); 
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`🚀 GraphQL API running at http://localhost:${PORT}/graphql`);
+  });
+}
 
-app.listen(PORT, () => {
-  console.log(`✅ Quote proxy server is running at http://localhost:${PORT}`);
-});
+startServer();

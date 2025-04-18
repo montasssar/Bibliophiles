@@ -1,75 +1,46 @@
 import { useEffect, useState, useRef } from 'react';
-import axios from 'axios';
+import { useLazyQuery } from '@apollo/client';
+import { GET_QUOTES, GET_RANDOM_QUOTES } from '../graphql/queries';
 
 const useQuotes = () => {
   const [quotes, setQuotes] = useState([]);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [selectedTag, setSelectedTag] = useState('');
   const [selectedAuthor, setSelectedAuthor] = useState('');
-
   const shownQuoteIdsRef = useRef(new Set());
   const lastAuthorsRef = useRef([]);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (
-        window.innerHeight + window.scrollY >= document.body.offsetHeight - 100 &&
-        hasMore &&
-        !loading
-      ) {
-        setPage((prev) => prev + 1);
-      }
-    };
+  const [fetchQuotes] = useLazyQuery(GET_QUOTES, { fetchPolicy: 'no-cache' });
+  const [fetchRandom] = useLazyQuery(GET_RANDOM_QUOTES, { fetchPolicy: 'no-cache' });
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [hasMore, loading]);
-
-  useEffect(() => {
-    fetchQuotes(page, selectedTag, selectedAuthor);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, selectedTag, selectedAuthor]);
-
-  const fetchQuotes = async (pg, tag = '', author = '') => {
-    if (loading || !hasMore) return;
-
-    setLoading(true);
+  const fetch = async (author, tag) => {
     try {
-      let url = `/api/briefreads?limit=6&page=${pg}&sort=random`;
-      if (tag) url += `&tags=${encodeURIComponent(tag)}`;
-      if (author) url += `&author=${encodeURIComponent(author)}`;
+      const { data } = author
+        ? await fetchQuotes({ variables: { filter: { author, limit: 6 } } })
+        : await fetchRandom({ variables: { limit: 6 } });
 
-      const res = await axios.get(url);
-      const newQuotes = res.data || [];
+      const incoming = data?.quotes || data?.randomQuotes || [];
 
-      const uniqueNewQuotes = newQuotes.filter((q) => {
+      const unique = incoming.filter((q) => {
         const isNewId = !shownQuoteIdsRef.current.has(q.id);
         const isNewAuthor = !lastAuthorsRef.current.includes(q.author);
         return isNewId && isNewAuthor;
       });
 
-      uniqueNewQuotes.forEach((q) => shownQuoteIdsRef.current.add(q.id));
-
-      if (uniqueNewQuotes.length > 0) {
-        const lastAuthor = uniqueNewQuotes[uniqueNewQuotes.length - 1].author;
-        lastAuthorsRef.current.push(lastAuthor);
+      unique.forEach((q) => shownQuoteIdsRef.current.add(q.id));
+      if (unique.length) {
+        lastAuthorsRef.current.push(unique[unique.length - 1].author);
         if (lastAuthorsRef.current.length > 2) lastAuthorsRef.current.shift();
       }
 
-      setQuotes((prev) => [...prev, ...uniqueNewQuotes]);
-      setHasMore(newQuotes.length > 0);
-      setError(null);
+      setQuotes(unique);
     } catch (err) {
-      setHasMore(false);
-      setError('Failed to load quotes. Please try again later.');
-      console.warn(err); // less noisy than console.error
-    } finally {
-      setLoading(false);
+      console.warn('GraphQL fetch failed:', err.message);
     }
   };
+
+  useEffect(() => {
+    fetch(selectedAuthor, selectedTag);
+  }, [selectedAuthor, selectedTag]);
 
   const handleMoodChange = (tag) => {
     setSelectedTag(tag);
@@ -84,18 +55,12 @@ const useQuotes = () => {
 
   const resetState = () => {
     setQuotes([]);
-    setPage(1);
-    setHasMore(true);
     shownQuoteIdsRef.current.clear();
     lastAuthorsRef.current = [];
-    setError(null);
   };
 
   return {
     quotes,
-    loading,
-    error,
-    hasMore,
     selectedTag,
     setSelectedTag: handleMoodChange,
     selectedAuthor,
