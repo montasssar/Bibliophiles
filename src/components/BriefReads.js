@@ -26,11 +26,11 @@ const mindsByTag = {
 const BriefReads = () => {
   const { currentUser } = useAuth();
   const { isBookSaved, toggleSaveBook } = useSavedBooks(currentUser);
+
   const {
     quotes,
     loading,
     error,
-    hasMore,
     selectedTag,
     setSelectedTag,
     selectedAuthor,
@@ -48,6 +48,11 @@ const BriefReads = () => {
   const clearAuthorInput = () => {
     setTypedAuthor('');
     setSelectedAuthor('');
+  };
+
+  const resetFilters = () => {
+    setSelectedTag('');
+    clearAuthorInput();
   };
 
   return (
@@ -98,11 +103,19 @@ const BriefReads = () => {
         </div>
       )}
 
-      {selectedAuthor && (
-        <div className="author-filter-banner">
+      {(selectedAuthor || selectedTag) && (
+        <div className="filter-banner">
           <p>
-            🎤 Showing quotes from <strong>{selectedAuthor}</strong>
-            <button onClick={clearAuthorInput}>Clear</button>
+            {selectedAuthor && (
+              <>
+                🎤 Showing quotes from <strong>{selectedAuthor}</strong>
+              </>
+            )}
+            {(selectedAuthor || selectedTag) && (
+              <button className="reset-filters-btn" onClick={resetFilters}>
+                Reset Filters
+              </button>
+            )}
           </p>
         </div>
       )}
@@ -118,14 +131,16 @@ const BriefReads = () => {
           >
             <FaQuoteLeft className="quote-icon" />
             <p className="quote-text">“{quote.text}”</p>
-            <span className="quote-author">
-              — {quote.author}
-            </span>
+            <span className="quote-author">— {quote.author}</span>
 
             <button
               className={`save-quote-btn ${isBookSaved(quote.id) ? 'saved' : ''}`}
               onClick={() =>
-                toggleSaveBook({ ...quote, title: quote.text, author: quote.author })
+                toggleSaveBook({
+                  ...quote,
+                  title: quote.text,
+                  author: quote.author,
+                })
               }
             >
               {isBookSaved(quote.id) ? '♥ Saved' : '♡ Save'}
@@ -142,9 +157,8 @@ const BriefReads = () => {
         )
       )}
 
-      {loading && <p>Loading more quotes...</p>}
-      {error && <p className="error">{error}</p>}
-      {!hasMore && quotes.length > 0 && <p>No more quotes to load.</p>}
+      {loading && <p>Loading quotes...</p>}
+      {error && <p className="error">Something went wrong: {error.message}</p>}
     </div>
   );
 };

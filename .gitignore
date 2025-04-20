@@ -1,23 +1,49 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/.pnp
+# ----------------------
+# 📦 DEPENDENCIES
+# ----------------------
+node_modules/
+.pnp/
 .pnp.js
 
-# testing
-/coverage
+# ----------------------
+# 🧪 TEST COVERAGE
+# ----------------------
+coverage/
 
-# production
-/build
+# ----------------------
+# 🚀 BUILD OUTPUT
+# ----------------------
+build/
+dist/
 
-# misc
-.DS_Store
+# ----------------------
+# ⚙️ ENV FILES
+# ----------------------
+.env
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*.local
 
+# ----------------------
+# 🗃 SYSTEM FILES
+# ----------------------
+.DS_Store
+Thumbs.db
+
+# ----------------------
+# 🐛 LOG FILES
+# ----------------------
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# ----------------------
+# 📂 OS-SPECIFIC
+# ----------------------
+*.swp
+*.swo
+
+# ----------------------
+# 🔧 EDITOR SETTINGS
+# ----------------------
+.vscode/
+.idea/

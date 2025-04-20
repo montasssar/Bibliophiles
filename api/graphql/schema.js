@@ -1,4 +1,5 @@
-const { gql } = require('apollo-server-express');
+// graphql/schema.js
+const { gql } = require('graphql-tag');
 
 module.exports = gql`
   type Quote {

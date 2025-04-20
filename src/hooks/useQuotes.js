@@ -9,6 +9,7 @@ const useQuotes = () => {
 
   const [selectedTag, setSelectedTag] = useState('');
   const [selectedAuthor, setSelectedAuthor] = useState('');
+
   const shownQuoteIdsRef = useRef(new Set());
   const lastAuthorsRef = useRef([]);
 
@@ -22,39 +23,48 @@ const useQuotes = () => {
     setError(null);
   };
 
-  const fetch = useCallback(async (author, tag) => {
-    setLoading(true);
-    setError(null);
+  const fetch = useCallback(
+    async (author, tag) => {
+      setLoading(true);
+      setError(null);
 
-    try {
-      const { data } = author
-        ? await fetchQuotes({ variables: { filter: { author, limit: 6 } } })
-        : await fetchRandom({ variables: { limit: 6 } });
+      try {
+        const variables = author
+          ? { filter: { author, limit: 6 } }
+          : tag
+          ? { filter: { tag, limit: 6 } }
+          : null;
 
-      const incoming = data?.quotes || data?.randomQuotes || [];
+        const { data } = variables
+          ? await fetchQuotes({ variables })
+          : await fetchRandom({ variables: { limit: 6 } });
 
-      const unique = incoming.filter((q) => {
-        const isNewId = !shownQuoteIdsRef.current.has(q.id);
-        const isNewAuthor = !lastAuthorsRef.current.includes(q.author);
-        return isNewId && isNewAuthor;
-      });
+        const incoming = data?.quotes || data?.randomQuotes || [];
 
-      unique.forEach((q) => shownQuoteIdsRef.current.add(q.id));
+        const unique = incoming.filter((q) => {
+          const isNewId = !shownQuoteIdsRef.current.has(q.id);
+          const isNewAuthor = !lastAuthorsRef.current.includes(q.author);
+          return isNewId && isNewAuthor;
+        });
 
-      if (unique.length) {
-        const lastAuthor = unique[unique.length - 1].author;
-        lastAuthorsRef.current.push(lastAuthor);
-        if (lastAuthorsRef.current.length > 2) lastAuthorsRef.current.shift();
+        unique.forEach((q) => shownQuoteIdsRef.current.add(q.id));
+
+        if (unique.length) {
+          const lastAuthor = unique[unique.length - 1].author;
+          lastAuthorsRef.current.push(lastAuthor);
+          if (lastAuthorsRef.current.length > 2) lastAuthorsRef.current.shift();
+        }
+
+        setQuotes(unique);
+      } catch (err) {
+        console.warn('GraphQL fetch failed:', err.message);
+        setError({ message: 'Could not load quotes. Please try again.' });
+      } finally {
+        setLoading(false);
       }
-
-      setQuotes(unique);
-    } catch (err) {
-      console.warn('GraphQL fetch failed:', err.message);
-      setError('Could not load quotes. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchQuotes, fetchRandom]);
+    },
+    [fetchQuotes, fetchRandom]
+  );
 
   useEffect(() => {
     fetch(selectedAuthor, selectedTag);

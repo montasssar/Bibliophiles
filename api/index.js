@@ -1,14 +1,17 @@
 const express = require('express');
+const { ApolloServer } = require('@apollo/server');
+const { expressMiddleware } = require('@apollo/server/express4');
 const cors = require('cors');
-const { ApolloServer } = require('apollo-server-express');
+const { json } = require('body-parser');
+require('dotenv').config();
+
 const typeDefs = require('./graphql/schema');
 const resolvers = require('./graphql/resolvers');
-require('dotenv').config();
 
 async function startServer() {
   const app = express();
-  app.use(cors());
 
+  // Apollo Server setup
   const server = new ApolloServer({
     typeDefs,
     resolvers,
@@ -20,7 +23,18 @@ async function startServer() {
   });
 
   await server.start();
-  server.applyMiddleware({ app, path: '/graphql' });
+
+  // Middlewares before Apollo
+  app.use(cors());
+  app.use(json());
+
+  // Apollo middleware with context setup
+  app.use(
+    '/graphql',
+    expressMiddleware(server, {
+      context: async ({ req }) => ({ token: req.headers.authorization }),
+    })
+  );
 
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
