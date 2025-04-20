@@ -40,6 +40,14 @@ const BriefReads = () => {
 
   const [typedAuthor, setTypedAuthor] = useState('');
 
+  const suggestions = mindsByTag[selectedTag] || [];
+  const filteredSuggestions = typedAuthor
+    ? suggestions.filter((name) =>
+        name.toLowerCase().includes(typedAuthor.toLowerCase())
+      )
+    : [];
+
+  // Infinite scroll trigger
   useEffect(() => {
     const handleScroll = () => {
       if (
@@ -49,7 +57,6 @@ const BriefReads = () => {
         loadMore();
       }
     };
-
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [loading, loadMore]);
@@ -87,11 +94,11 @@ const BriefReads = () => {
         </select>
       </div>
 
-      {selectedTag && mindsByTag[selectedTag] && (
-        <div className="minds-intro-with-search">
+      {selectedTag && (
+        <div className="minds-intro-with-search" style={{ position: 'relative' }}>
           <p>
             ✨ <em>From minds like:</em>{' '}
-            {mindsByTag[selectedTag].map((author, index) => (
+            {suggestions.map((author, index) => (
               <span
                 key={author}
                 className="mind-link"
@@ -101,7 +108,7 @@ const BriefReads = () => {
                 }}
               >
                 {author}
-                {index < mindsByTag[selectedTag].length - 1 ? ', ' : ''}
+                {index < suggestions.length - 1 ? ', ' : ''}
               </span>
             ))}
           </p>
@@ -114,6 +121,22 @@ const BriefReads = () => {
               onChange={(e) => setTypedAuthor(e.target.value)}
               onKeyDown={handleAuthorSubmit}
             />
+
+            {filteredSuggestions.length > 0 && (
+              <ul className="author-suggestions">
+                {filteredSuggestions.map((name) => (
+                  <li
+                    key={name}
+                    onClick={() => {
+                      setTypedAuthor(name);
+                      setSelectedAuthor(name);
+                    }}
+                  >
+                    {name}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       )}
