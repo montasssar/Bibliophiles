@@ -2,7 +2,6 @@ const express = require('express');
 const { ApolloServer } = require('@apollo/server');
 const { expressMiddleware } = require('@apollo/server/express4');
 const cors = require('cors');
-const { json } = require('body-parser');
 require('dotenv').config();
 
 const typeDefs = require('./graphql/schema');
@@ -11,7 +10,6 @@ const resolvers = require('./graphql/resolvers');
 async function startServer() {
   const app = express();
 
-  // Apollo Server setup
   const server = new ApolloServer({
     typeDefs,
     resolvers,
@@ -24,11 +22,21 @@ async function startServer() {
 
   await server.start();
 
-  // Middlewares before Apollo
+  // ✅ Essential Middlewares
   app.use(cors());
-  app.use(json());
+  app.use(express.json()); // ⬅️ Needed to populate req.body
 
-  // Apollo middleware with context setup
+  // ✅ Debug Middleware
+  app.use((req, res, next) => {
+    console.log('📬 Request Received:');
+    console.log('➡️ Method:', req.method);
+    console.log('➡️ URL:', req.url);
+    console.log('➡️ Headers:', req.headers);
+    console.log('➡️ Body:', req.body);
+    next();
+  });
+
+  // ✅ Apollo Middleware
   app.use(
     '/graphql',
     expressMiddleware(server, {
