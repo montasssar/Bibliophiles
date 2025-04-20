@@ -4,6 +4,7 @@ import { GET_BRIEFREADS, GET_RANDOM_BRIEFREADS } from '../graphql/briefreadsQuer
 
 const useQuotes = () => {
   const [quotes, setQuotes] = useState([]);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -18,26 +19,27 @@ const useQuotes = () => {
 
   const resetState = () => {
     setQuotes([]);
+    setPage(1);
     shownQuoteIdsRef.current.clear();
     lastAuthorsRef.current = [];
     setError(null);
   };
 
   const fetch = useCallback(
-    async (author, tag) => {
+    async (author, tag, pageNum = 1) => {
       setLoading(true);
       setError(null);
 
       try {
         const variables = author
-          ? { filter: { author, limit: 6 } }
+          ? { filter: { author, limit: 6, page: pageNum } }
           : tag
-          ? { filter: { tag, limit: 6 } }
-          : null;
+          ? { filter: { tag, limit: 6, page: pageNum } }
+          : { limit: 6, page: pageNum };
 
-        const { data } = variables
+        const { data } = author || tag
           ? await fetchQuotes({ variables })
-          : await fetchRandom({ variables: { limit: 6 } });
+          : await fetchRandom({ variables });
 
         const incoming = data?.quotes || data?.randomQuotes || [];
 
@@ -55,7 +57,7 @@ const useQuotes = () => {
           if (lastAuthorsRef.current.length > 2) lastAuthorsRef.current.shift();
         }
 
-        setQuotes(unique);
+        setQuotes((prev) => [...prev, ...unique]);
       } catch (err) {
         console.warn('GraphQL fetch failed:', err.message);
         setError({ message: 'Could not load quotes. Please try again.' });
@@ -67,18 +69,24 @@ const useQuotes = () => {
   );
 
   useEffect(() => {
-    fetch(selectedAuthor, selectedTag);
-  }, [selectedAuthor, selectedTag, fetch]);
+    resetState();
+    fetch(selectedAuthor, selectedTag, 1);
+  }, [selectedAuthor, selectedTag]);
+
+  const loadMore = () => {
+    const nextPage = page + 1;
+    fetch(selectedAuthor, selectedTag, nextPage);
+    setPage(nextPage);
+  };
 
   const handleMoodChange = (tag) => {
     setSelectedTag(tag);
     setSelectedAuthor('');
-    resetState();
   };
 
   const handleAuthorSelect = (author) => {
     setSelectedAuthor(author);
-    resetState();
+    setSelectedTag('');
   };
 
   return {
@@ -89,6 +97,7 @@ const useQuotes = () => {
     setSelectedTag: handleMoodChange,
     selectedAuthor,
     setSelectedAuthor: handleAuthorSelect,
+    loadMore, // expose this to the component
   };
 };
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaQuoteLeft } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
@@ -35,9 +35,24 @@ const BriefReads = () => {
     setSelectedTag,
     selectedAuthor,
     setSelectedAuthor,
+    loadMore,
   } = useQuotes();
 
   const [typedAuthor, setTypedAuthor] = useState('');
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + window.scrollY >= document.body.offsetHeight - 300 &&
+        !loading
+      ) {
+        loadMore();
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [loading, loadMore]);
 
   const handleAuthorSubmit = (e) => {
     if (e.key === 'Enter' && typedAuthor.trim()) {
@@ -111,11 +126,9 @@ const BriefReads = () => {
                 🎤 Showing quotes from <strong>{selectedAuthor}</strong>
               </>
             )}
-            {(selectedAuthor || selectedTag) && (
-              <button className="reset-filters-btn" onClick={resetFilters}>
-                Reset Filters
-              </button>
-            )}
+            <button className="reset-filters-btn" onClick={resetFilters}>
+              Reset Filters
+            </button>
           </p>
         </div>
       )}
@@ -124,10 +137,10 @@ const BriefReads = () => {
         quotes.map((quote, index) => (
           <motion.div
             className="quote-card"
-            key={quote.id}
+            key={quote.id || `${quote.text}-${index}`}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1, duration: 0.5 }}
+            transition={{ delay: index * 0.05, duration: 0.4 }}
           >
             <FaQuoteLeft className="quote-icon" />
             <p className="quote-text">“{quote.text}”</p>
@@ -157,7 +170,7 @@ const BriefReads = () => {
         )
       )}
 
-      {loading && <p>Loading quotes...</p>}
+      {loading && <p className="loading-msg">Loading more quotes...</p>}
       {error && <p className="error">Something went wrong: {error.message}</p>}
     </div>
   );
