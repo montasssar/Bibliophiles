@@ -1,7 +1,6 @@
-// graphql/schema.js
 const { gql } = require('graphql-tag');
 
-module.exports = gql`
+const typeDefs = gql`
   type Quote {
     id: ID
     text: String
@@ -21,3 +20,5 @@ module.exports = gql`
     randomQuotes(limit: Int): [Quote]
   }
 `;
+
+module.exports = typeDefs;

@@ -1,11 +1,8 @@
-const {
-  fetchQuotable,
-  fetchRandomQuotable,
-} = require('../proxyRouter');
+const quoteController = require('../controllers/quoteController');
 
 module.exports = {
   Query: {
-    quotes: async (_, { filter }) => fetchQuotable(filter),
-    randomQuotes: async (_, { limit }) => fetchRandomQuotable(limit),
+    quotes: async (_, { filter }) => quoteController.fetchQuotes(filter),
+    randomQuotes: async (_, { limit }) => quoteController.fetchRandomQuotes(limit),
   },
 };

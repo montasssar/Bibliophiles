@@ -14,8 +14,20 @@ const useQuotes = () => {
   const shownQuoteIdsRef = useRef(new Set());
   const lastAuthorsRef = useRef([]);
 
-  const [fetchQuotes] = useLazyQuery(GET_BRIEFREADS, { fetchPolicy: 'no-cache' });
-  const [fetchRandom] = useLazyQuery(GET_RANDOM_BRIEFREADS, { fetchPolicy: 'no-cache' });
+  // ✅ Add error logging to both queries
+  const [fetchQuotes] = useLazyQuery(GET_BRIEFREADS, {
+    fetchPolicy: 'no-cache',
+    onError: (error) => {
+      console.error('❌ GET_BRIEFREADS error:', error);
+    },
+  });
+
+  const [fetchRandom] = useLazyQuery(GET_RANDOM_BRIEFREADS, {
+    fetchPolicy: 'no-cache',
+    onError: (error) => {
+      console.error('❌ GET_RANDOM_BRIEFREADS error:', error);
+    },
+  });
 
   const resetState = () => {
     setQuotes([]);
@@ -31,17 +43,18 @@ const useQuotes = () => {
       setError(null);
 
       try {
-        const variables = author
-          ? { filter: { author, limit: 6, page: pageNum } }
-          : tag
-          ? { filter: { tag, limit: 6, page: pageNum } }
-          : { limit: 6, page: pageNum };
+        let data;
 
-        const { data } = author || tag
-          ? await fetchQuotes({ variables })
-          : await fetchRandom({ variables });
+        if (author || tag) {
+          const filter = author ? { author, limit: 6, page: pageNum } : { tag, limit: 6, page: pageNum };
+          const res = await fetchQuotes({ variables: { filter } });
+          data = res.data?.quotes;
+        } else {
+          const res = await fetchRandom({ variables: { limit: 6 } }); // ✅ page removed
+          data = res.data?.randomQuotes;
+        }
 
-        const incoming = data?.quotes || data?.randomQuotes || [];
+        const incoming = data || [];
 
         const unique = incoming.filter((q) => {
           const isNewId = !shownQuoteIdsRef.current.has(q.id);
@@ -59,7 +72,7 @@ const useQuotes = () => {
 
         setQuotes((prev) => [...prev, ...unique]);
       } catch (err) {
-        console.warn('GraphQL fetch failed:', err.message);
+        console.warn('⚠️ GraphQL fetch failed:', err.message);
         setError({ message: 'Could not load quotes. Please try again.' });
       } finally {
         setLoading(false);
@@ -71,7 +84,7 @@ const useQuotes = () => {
   useEffect(() => {
     resetState();
     fetch(selectedAuthor, selectedTag, 1);
-  }, [selectedAuthor, selectedTag]);
+  }, [selectedAuthor, selectedTag, fetch]);
 
   const loadMore = () => {
     const nextPage = page + 1;
@@ -97,7 +110,7 @@ const useQuotes = () => {
     setSelectedTag: handleMoodChange,
     selectedAuthor,
     setSelectedAuthor: handleAuthorSelect,
-    loadMore, // expose this to the component
+    loadMore,
   };
 };
 
